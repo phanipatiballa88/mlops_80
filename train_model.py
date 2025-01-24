@@ -1,6 +1,6 @@
-# FILE: train_model.py
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
 import joblib
 import os
 import mlflow
@@ -17,34 +17,41 @@ mlflow.set_experiment("mlops")
 X_train = pd.read_csv('data/X_train.csv')
 y_train = pd.read_csv('data/y_train.csv')
 
-# Define different sets of parameters for experimentation
-params_list = [
-    {"n_estimators": 100, "max_depth": 5},
-    {"n_estimators": 200, "max_depth": 10},
-    {"n_estimators": 300, "max_depth": 15},
-]
+# Define the parameter grid for GridSearchCV
+param_grid = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [5, 10, 15]
+}
 
-for params in params_list:
-    with mlflow.start_run():
-        # Train a RandomForest model with different parameters
-        model = RandomForestClassifier(random_state=42, **params)
-        model.fit(X_train, y_train.values.ravel())
+# Initialize the RandomForest model
+model = RandomForestClassifier(random_state=42)
 
-        # Log model parameters
-        mlflow.log_params(params)
+# Initialize GridSearchCV
+grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, scoring='accuracy')
 
-        # Log model metrics
-        accuracy = model.score(X_train, y_train)
-        mlflow.log_metric("accuracy", accuracy)
+# Start an MLflow run
+with mlflow.start_run():
+    # Fit GridSearchCV
+    grid_search.fit(X_train, y_train.values.ravel())
 
-        # Infer model signature
-        signature = infer_signature(X_train, model.predict(X_train))
+    # Get the best model
+    best_model = grid_search.best_estimator_
 
-        # Log the model with signature and input example
-        mlflow.sklearn.log_model(model, "model", signature=signature, input_example=X_train.head())
+    # Log the best parameters
+    mlflow.log_params(grid_search.best_params_)
 
-        # Create the model directory if it doesn't exist
-        os.makedirs('model', exist_ok=True)
+    # Log the best model metrics
+    best_accuracy = grid_search.best_score_
+    mlflow.log_metric("best_accuracy", best_accuracy)
 
-        # Save the model
-        joblib.dump(model, 'model.pkl')
+    # Infer model signature
+    signature = infer_signature(X_train, best_model.predict(X_train))
+
+    # Log the best model with signature and input example
+    mlflow.sklearn.log_model(best_model, "model", signature=signature, input_example=X_train.head())
+
+    # Create the model directory if it doesn't exist
+    os.makedirs('model', exist_ok=True)
+
+    # Save the best model
+    joblib.dump(best_model, 'best_model.pkl')
