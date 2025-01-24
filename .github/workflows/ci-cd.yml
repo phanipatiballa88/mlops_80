@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   lint:
-    runs-on: self-hosted
+    runs-on: mlops-self-hosted
 
     steps:
     - name: Checkout code
@@ -32,7 +32,7 @@ jobs:
         fi
 
   test:
-    runs-on: self-hosted
+    runs-on: mlops-self-hosted
     needs: lint
 
     steps:
