@@ -16,4 +16,4 @@ model.fit(X_train, y_train.values.ravel())
 os.makedirs('model', exist_ok=True)
 
 # Save the model
-joblib.dump(model, 'model/model.pkl')
+joblib.dump(model, 'model.pkl')
