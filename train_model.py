@@ -54,4 +54,4 @@ with mlflow.start_run():
     os.makedirs('model', exist_ok=True)
 
     # Save the best model
-    joblib.dump(best_model, 'best_model.pkl')
+    joblib.dump(best_model, 'model/best_model.pkl')
