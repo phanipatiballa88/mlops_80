@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout code
@@ -32,7 +32,7 @@ jobs:
         fi
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: lint
 
     steps:
@@ -47,31 +47,35 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install pandas scikit-learn joblib mlflow dvc
 
     - name: Prepare data and train model
       run: |
+        dvc pull
         python prepare_data.py
         python train_model.py
 
-  deploy:
-    runs-on: ubuntu-latest
+  build_and_deploy:
+    runs-on: mlops-self-hosted
     needs: test
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
-
-    - name: Install dependencies
+    - name: Log in to Docker Hub
       run: |
-        python -m pip install --upgrade pip
-        pip install pandas scikit-learn joblib flask
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    - name: Deploy
+    - name: Build Docker image
       run: |
-        nohup python app.py &
+        docker build -t mlops_80_model_img .
+
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker tag mlops_80_model_img ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
+
+    - name: Deploy Docker container
+      run: |
+        docker run -d -p 5000:5000 --name mlops_80_model_app ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
