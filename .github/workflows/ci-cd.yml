@@ -69,17 +69,17 @@ jobs:
 
     - name: Log in to Docker Hub
       run: |
-        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
     - name: Build Docker image
       run: |
-        docker build -t mlops_80_model_img .
+        sudo docker build -t mlops_80_model_img .
 
     - name: Push Docker image to Docker Hub
       run: |
-        docker tag mlops_80_model_img ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
+        sudo docker tag mlops_80_model_img ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
+        sudo docker push ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
 
     - name: Deploy Docker container
       run: |
-        docker run -d -p 5000:5000 --name mlops_80_model_app ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
+        sudo docker run -d -p 5000:5000 --name mlops_80_model_app ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
