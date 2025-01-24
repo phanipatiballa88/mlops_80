@@ -47,10 +47,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas scikit-learn joblib
+        pip install pandas scikit-learn joblib mlflow dvc
 
     - name: Prepare data and train model
       run: |
+        dvc pull
         python prepare_data.py
         python train_model.py
 
@@ -70,7 +71,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas scikit-learn joblib flask
+        pip install pandas scikit-learn joblib flask mlflow dvc
 
     - name: Deploy
       run: |
