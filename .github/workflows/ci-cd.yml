@@ -51,7 +51,7 @@ jobs:
 
     - name: Prepare data and train model
       run: |
-        dvc pull
+        # dvc pull --force
         python prepare_data.py
         python train_model.py
 
