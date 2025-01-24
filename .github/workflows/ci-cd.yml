@@ -63,7 +63,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-      - name: Print current user
+    - name: Print current user
       run: |
         whoami
 
