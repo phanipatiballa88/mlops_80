@@ -103,8 +103,8 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-        auth-type: SERVICE_PRINCIPAL
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        # auth-type: SERVICE_PRINCIPAL
+        # subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         enable-AzPSSession: true
 
     - name: Build and Push Docker image to ACR
