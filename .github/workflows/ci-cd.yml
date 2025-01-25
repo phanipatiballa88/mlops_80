@@ -55,45 +55,45 @@ jobs:
         python prepare_data.py
         python train_model.py
 
-  build_and_deploy:
-    runs-on: mlops-self-hosted
-    needs: test
+  # build_and_deploy:
+  #   runs-on: mlops-self-hosted
+  #   needs: test
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
 
-    - name: Print current user
-      run: |
-        whoami
+  #   - name: Print current user
+  #     run: |
+  #       whoami
 
-    - name: Log in to Docker Hub
-      run: |
-        echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+  #   - name: Log in to Docker Hub
+  #     run: |
+  #       echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    - name: Build Docker image
-      run: |
-        sudo docker build -t mlops_80_model_img .
+  #   - name: Build Docker image
+  #     run: |
+  #       sudo docker build -t mlops_80_model_img .
 
-    - name: Push Docker image to Docker Hub
-      run: |
-        sudo docker tag mlops_80_model_img ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
-        sudo docker push ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
+  #   - name: Push Docker image to Docker Hub
+  #     run: |
+  #       sudo docker tag mlops_80_model_img ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
+  #       sudo docker push ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
 
-    - name: Stop and Remove Existing Container
-      run: |
-        if [ "$(sudo docker ps -q -f name=mlops_80_model_app)" ]; then
-          sudo docker stop mlops_80_model_app
-          sudo docker rm mlops_80_model_app
-        fi
+  #   - name: Stop and Remove Existing Container
+  #     run: |
+  #       if [ "$(sudo docker ps -q -f name=mlops_80_model_app)" ]; then
+  #         sudo docker stop mlops_80_model_app
+  #         sudo docker rm mlops_80_model_app
+  #       fi
 
-    - name: Deploy Docker container
-      run: |
-        sudo docker run -d -p 5000:5000 --name mlops_80_model_app ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
+  #   - name: Deploy Docker container
+  #     run: |
+  #       sudo docker run -d -p 5000:5000 --name mlops_80_model_app ${{ secrets.DOCKER_USERNAME }}/mlops_80_model_img:latest
   
   deploy_to_azure:
     runs-on: mlops-self-hosted
-    needs: build_and_deploy
+    # needs: build_and_deploy
 
     steps:
     - name: Checkout code
@@ -103,7 +103,7 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-        auth-type: service-principal
+        auth-type: SERVICE_PRINCIPAL
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         enable-AzPSSession: true
 
