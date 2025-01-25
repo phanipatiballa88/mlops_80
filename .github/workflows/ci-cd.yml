@@ -106,6 +106,9 @@ jobs:
         # auth-type: SERVICE_PRINCIPAL
         # subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         # enable-AzPSSession: true
+    - name: Build Docker image
+      run: |
+        sudo docker build -t mlops_80_model_img .
 
     - name: Build and Push Docker image to ACR
       run: |
