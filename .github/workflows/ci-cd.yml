@@ -104,6 +104,7 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         auth-type: IDENTITY
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Build and Push Docker image to ACR
       run: |
